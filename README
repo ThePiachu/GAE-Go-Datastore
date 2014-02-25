@@ -1,0 +1,32 @@
+This is a library for easily handling App Engine's Datastore, Memcache and Blobstore calls. The main advantage it offers is being able to load data from or save data to Memcache and Datastore in one quick call. Example use:
+
+
+import (
+	"Datastore"
+	"appengine"
+)
+
+type Address struct {
+	Address string
+	...
+}
+
+var AddressStr string = "Address"
+
+func LoadAddress(c appengine.Context, add string) (*Address, error) {
+	address:=new(Address)
+	err:=Datastore.GetFromDatastoreSimpleOrMemcache(c, AddressStr, add, AddressStr+add, address)
+	if err!=nil {
+		c.Errorf("Address - LoadAddress error 1 - "+err.Error())
+		return nil, err
+	}
+	return address, nil
+}
+
+func SaveAddress(c appengine.Context, address *Address) error {
+	_, err:=Datastore.PutInDatastoreSimpleAndMemcache(c, AddressStr, address.Address, AddressStr+address.Address, address)
+	if err!=nil {
+		c.Errorf("Address - SaveAddress error 1 - "+err.Error())
+	}
+	return err
+}
